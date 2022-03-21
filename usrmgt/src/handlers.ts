@@ -182,3 +182,17 @@ export const deleteUser = async (event: APIGatewayProxyEvent): Promise<APIGatewa
     return handleError(e);
   }
 };
+
+export const listUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  const output = await docClient
+    .scan({
+      TableName: tableName,
+    })
+    .promise();
+
+  return {
+    statusCode: 200,
+    headers,
+    body: JSON.stringify(output.Items),
+  };
+};
