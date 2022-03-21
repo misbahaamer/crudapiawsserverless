@@ -126,3 +126,36 @@ export const getUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
     return handleError(e);
   }
 };
+
+
+export const updateUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const id = event.pathParameters?.id as string;
+
+    await fetchUserById(id);
+
+    const reqBody = JSON.parse(event.body as string);
+
+    await schema.validate(reqBody, { abortEarly: false });
+
+    const user = {
+      ...reqBody,
+      userID: id,
+    };
+
+    await docClient
+      .put({
+        TableName: tableName,
+        Item: user,
+      })
+      .promise();
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(user),
+    };
+  } catch (e) {
+    return handleError(e);
+  }
+};
