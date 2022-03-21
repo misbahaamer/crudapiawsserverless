@@ -68,28 +68,59 @@ export const hello = async (event: APIGatewayProxyEvent): Promise<APIGatewayProx
   };
 };
 
+const fetchUserById = async (id: string) => {
+  const output = await docClient
+    .get({
+      TableName: tableName,
+      Key: {
+        userID: id,
+      },
+    })
+    .promise();
+
+  if (!output.Item) {
+    throw new HttpError(404, { error: "not found" });
+  }
+
+  return output.Item;
+};
+
 export const createUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const reqBody = JSON.parse(event.body as string);
 
     await schema.validate(reqBody, { abortEarly: false });
 
-    const product = {
+    const user = {
       ...reqBody,
-      productID: v4(),
+      userID: v4(),
     };
 
     await docClient
       .put({
         TableName: tableName,
-        Item: product,
+        Item: user,
       })
       .promise();
 
     return {
       statusCode: 201,
       headers,
-      body: JSON.stringify(product),
+      body: JSON.stringify(user),
+    };
+  } catch (e) {
+    return handleError(e);
+  }
+};
+
+export const getUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const user = await fetchUserById(event.pathParameters?.id as string);
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(user),
     };
   } catch (e) {
     return handleError(e);
