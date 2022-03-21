@@ -18,12 +18,18 @@ const schema = yup.object().shape({
   phoneNumber: yup.string().required(),
 });
 
+/**
+ standard http error
+ */
 class HttpError extends Error {
   constructor(public statusCode: number, body: Record<string, unknown> = {}) {
     super(JSON.stringify(body));
   }
 }
 
+/*
+
+ */
 const handleError = (e: unknown) => {
   if (e instanceof yup.ValidationError) {
     return {
@@ -68,6 +74,9 @@ export const hello = async (event: APIGatewayProxyEvent): Promise<APIGatewayProx
   };
 };
 
+/*
+fetch user by given event id
+ */
 const fetchUserById = async (id: string) => {
   const output = await docClient
     .get({
@@ -85,6 +94,9 @@ const fetchUserById = async (id: string) => {
   return output.Item;
 };
 
+/*
+post a user by given body
+ */
 export const createUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const reqBody = JSON.parse(event.body as string);
@@ -113,6 +125,9 @@ export const createUser = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   }
 };
 
+/*
+get user by given event id
+ */
 export const getUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const user = await fetchUserById(event.pathParameters?.id as string);
@@ -127,6 +142,9 @@ export const getUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 };
 
+/*
+update user by given event id
+ */
 export const updateUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const id = event.pathParameters?.id as string;
@@ -159,6 +177,9 @@ export const updateUser = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   }
 };
 
+/*
+delete user by given event id
+ */
 export const deleteUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const id = event.pathParameters?.id as string;
@@ -183,6 +204,9 @@ export const deleteUser = async (event: APIGatewayProxyEvent): Promise<APIGatewa
   }
 };
 
+/*
+get list of all users
+ */
 export const listUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const output = await docClient
     .scan({
