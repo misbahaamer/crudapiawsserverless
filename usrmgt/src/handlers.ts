@@ -127,7 +127,6 @@ export const getUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
   }
 };
 
-
 export const updateUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   try {
     const id = event.pathParameters?.id as string;
@@ -154,6 +153,30 @@ export const updateUser = async (event: APIGatewayProxyEvent): Promise<APIGatewa
       statusCode: 200,
       headers,
       body: JSON.stringify(user),
+    };
+  } catch (e) {
+    return handleError(e);
+  }
+};
+
+export const deleteUser = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+  try {
+    const id = event.pathParameters?.id as string;
+
+    await fetchUserById(id);
+
+    await docClient
+      .delete({
+        TableName: tableName,
+        Key: {
+          userID: id,
+        },
+      })
+      .promise();
+
+    return {
+      statusCode: 204,
+      body: "",
     };
   } catch (e) {
     return handleError(e);
